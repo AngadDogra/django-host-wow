@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Views</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .database-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        thead tr {
+            background-color: #673ab7;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f5f0ff;
+        }
+
+        tbody tr:hover {
+            background-color: #ede7f6;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #673ab7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .tab-button:hover {
+            background-color: #5829a7;
+        }
+
+        .tab-button.active {
+            background-color: #5829a7;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            padding: 8px 16px;
+            background-color: #673ab7;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #5829a7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Database Views</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('bands')">Bands Database</button>
+            <button class="tab-button" onclick="openTab('sakila')">Sakila Database</button>
+        </div>
+
+        <!-- Bands Database Section -->
+        <div id="bands" class="tab-content active">
+            <div class="database-section">
+                <h2>Bands Database</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Date</th>
+                            <th>Volume</th>
+                            <th>Close/Last</th>
+                            <th>Open</th>
+                            <th>High</th>
+                            <th>Low</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in bands_data %}
+                        <tr>
+                            <td>{{ item.company_name }}</td>
+                            <td>{{ item.date|date:"Y-m-d" }}</td>
+                            <td>{{ item.volume|floatformat:0 }}</td>
+                            <td>{{ item.close_last|floatformat:2 }}</td>
+                            <td>{{ item.open|floatformat:2 }}</td>
+                            <td>{{ item.high|floatformat:2 }}</td>
+                            <td>{{ item.low|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sakila Database Section -->
+        <div id="sakila" class="tab-content">
+            <div class="database-section">
+                <h2>Sakila Database - Actors</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Actor ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Last Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for actor in sakila_actors %}
+                        <tr>
+                            <td>{{ actor.actor_id }}</td>
+                            <td>{{ actor.first_name }}</td>
+                            <td>{{ actor.last_name }}</td>
+                            <td>{{ actor.last_update|date:"Y-m-d H:i:s" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <h2>Sakila Database - Films</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Film ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Release Year</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for film in sakila_films %}
+                        <tr>
+                            <td>{{ film.film_id }}</td>
+                            <td>{{ film.title }}</td>
+                            <td>{{ film.description }}</td>
+                            <td>{{ film.release_year }}</td>
+                            <td>{{ film.rating }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function openTab(tabName) {
+            // Hide all tab contents
+            var tabContents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            // Remove active class from all buttons
+            var tabButtons = document.getElementsByClassName('tab-button');
+            for (var i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+
+            // Show the selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to the clicked button
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
