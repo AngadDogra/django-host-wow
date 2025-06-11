@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Database Views</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,6 +24,48 @@
             border-radius: 8px;
             margin-bottom: 30px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e5e5f7;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        form input[type="text"],
+        form input[type="date"] {
+            margin-right: 20px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        form input[type="text"]:focus,
+        form input[type="date"]:focus {
+            border-color: #673ab7;
+        }
+
+        form button {
+            padding: 10px 20px;
+            background-color: #673ab7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background-color: #5829a7;
         }
 
         h1 {
@@ -112,6 +155,77 @@
         .pagination a:hover {
             background-color: #5829a7;
         }
+
+        /* Date Range Picker Custom Styles */
+        .daterangepicker {
+            font-size: 14px; /* Adjust font size */
+        }
+
+        .daterangepicker .calendar-table {
+            background-color: #f5f5f5; /* Base background for calendar */
+        }
+
+        .daterangepicker .calendar-table th,
+        .daterangepicker .calendar-table td {
+            padding: 6px;  /* Compact padding */
+        }
+
+        .daterangepicker .calendar-table td {
+            background-color: #ffffff; /* Default background color for dates */
+        }
+
+        .daterangepicker .calendar-table td:hover {
+            background-color: #ddd; /* Hover effect for dates */
+        }
+
+        .daterangepicker td.active,
+        .daterangepicker td.active:hover {
+            background-color: #3aa2b7 !important;  /* Selected date */
+            border-color: #0a0317 !important;
+            color: #fff !important;
+        }
+
+        .daterangepicker .ranges li.active {
+            background-color: #3ab760 !important;  /* Active range */
+            color: #fff !important;
+        }
+
+        .daterangepicker td.in-range {
+            background-color: #e5e5f7 !important; /* In-range dates */
+        }
+
+        .daterangepicker .drp-calendar.right {
+            border-left: 1px solid #ddd !important; /* Border between calendars */
+        }
+
+        /* Month Titles */
+        .daterangepicker .month {
+            font-size: 25px; /* Increase font size for month titles */
+            font-weight: bold;
+            color: #e7ebef; /* Month title color */
+            padding: 8px 0;
+        }
+
+        /* Button Styles */
+        .daterangepicker .drp-buttons .applyBtn {
+            background-color: #673ab7;
+            border-color: #5829a7;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+            .daterangepicker .drp-buttons .applyBtn:hover {
+                background-color: #5829a7;
+            }
+
+            .daterangepicker .drp-buttons .cancelBtn {
+                color: #673ab7;
+                transition: color 0.3s;
+            }
+
+            .daterangepicker .drp-buttons .cancelBtn:hover {
+                color: #5829a7;
+            }
     </style>
 </head>
 <body>
@@ -127,6 +241,26 @@
         <div id="bands" class="tab-content active">
             <div class="database-section">
                 <h2>Bands Database</h2>
+                <form method="get" action=".">
+                    <label for="date_range">Select Date Range:</label>
+                    <input type="text" id="date_range" name="date_range" autocomplete="off" value="{{ request.GET.date_range }}"/>
+
+                    <label for="company_name">Select Company:</label>
+                    <select name="company_name" id="company_name">
+                        <option value="">-- Select Company --</option>
+                        <option value="AAPL" {% if request.GET.company_name == "AAPL" %}selected{% endif %}>Apple (AAPL)</option>
+                        <option value="AMD" {% if request.GET.company_name == "AMD" %}selected{% endif %}>AMD</option>
+                        <option value="AMZN" {% if request.GET.company_name == "AMZN" %}selected{% endif %}>Amazon (AMZN)</option>
+                        <option value="CSCO" {% if request.GET.company_name == "CSCO" %}selected{% endif %}>Cisco (CSCO)</option>
+                        <option value="META" {% if request.GET.company_name == "META" %}selected{% endif %}>Meta (META)</option>
+                        <option value="MSFT" {% if request.GET.company_name == "MSFT" %}selected{% endif %}>Microsoft (MSFT)</option>
+                        <option value="NFLX" {% if request.GET.company_name == "NFLX" %}selected{% endif %}>Netflix (NFLX)</option>
+                        <option value="QCOM" {% if request.GET.company_name == "QCOM" %}selected{% endif %}>Qualcomm (QCOM)</option>
+                        <option value="SBUX" {% if request.GET.company_name == "SBUX" %}selected{% endif %}>Starbucks (SBUX)</option>
+                        <option value="TSLA" {% if request.GET.company_name == "TSLA" %}selected{% endif %}>Tesla (TSLA)</option>
+                    </select>
+                    <button type="submit">Filter</button>
+                </form>
                 <table>
                     <thead>
                         <tr>
@@ -223,6 +357,13 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+
+    <!-- Include daterangepicker.js -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
     <script>
         function openTab(tabName) {
             // Hide all tab contents
@@ -244,5 +385,51 @@
             event.currentTarget.classList.add('active');
         }
     </script>
+    <script type="text/javascript">
+        $(function() {
+            var dateRangePicker = $('#date_range').daterangepicker({
+                locale: { format: 'YYYY-MM-DD' },
+                autoApply: true,
+                opens: 'right',
+                autoUpdateInput: false, // Prevent automatic update to handle manual input
+            });
+
+            // Event handler for applying date range
+            dateRangePicker.on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            // Event handler for clearing dates
+            $('#date_range').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
+            // Allow manual clearing of date range
+            $('#date_range').on('input', function() {
+                if ($(this).val() === '') {
+                    $(this).data('daterangepicker').setStartDate(moment().startOf('day'));
+                    $(this).data('daterangepicker').setEndDate(moment().endOf('day'));
+                }
+            });
+
+            // Handle form submission for filtering
+            $('form').on('submit', function(event) {
+                var companyName = $('#company_name').val();
+                var dateRange = $('#date_range').val();
+
+                // Optionally, add form validation here
+                if (companyName.trim() === '') {
+                    // Do something, e.g., display an error or proceed
+                }
+
+                if (dateRange.trim() === '') {
+                    // Date range is optional; handle accordingly
+                }
+
+                // Allow form submission by default
+                return true;
+            });
+        });
+</script>
 </body>
 </html>
